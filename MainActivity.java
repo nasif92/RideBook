@@ -10,27 +10,26 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 
 import static android.provider.AlarmClock.EXTRA_MESSAGE;
 
-public class MainActivity extends AppCompatActivity implements ride_adding_activity.OnRideAddingInteractionListener, View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     ListView ride_view;
     boolean ride_empty = true;
     public static ArrayList<ride> rides;
     public static ArrayAdapter<ride> ride_adapter;
     Button add_button, delete_button;
-    static double total_distance;
-
+    public static double total_distance;
+    public static int rides_counter;
     public static int index = -1;
     int edited_index;
     activity_tracker activity_tracker = new activity_tracker();
     boolean activity = activity_tracker.isFalse();
-    String []date = {"2000", "2001", "2002", "Hamilton", "Denver", "Los Angeles","!212"};
-    String []time = {"110", "123", "144", "55", "CO", "CA","ab"};
-    String[] distance = {"1","2","3","4","5","6","7"};
+    TextView distance;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,13 +39,11 @@ public class MainActivity extends AppCompatActivity implements ride_adding_activ
         rides =new ArrayList<>();
         add_button = (Button) findViewById(R.id.add_button);
         delete_button = (Button) findViewById(R.id.delete_button);
-
+        distance = findViewById(R.id.text);
         add_button.setOnClickListener(this);
         delete_button.setOnClickListener(this);
         ride_adapter = new ride_array_adapter(rides,this);
         ride_view.setAdapter(ride_adapter);
-
-        rides.add((new ride("Total Distance: ",total_distance)));
 
         ride_view.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -73,22 +70,21 @@ public class MainActivity extends AppCompatActivity implements ride_adding_activ
         super.onResume();
         ride_adapter = new ride_array_adapter(rides,this);
         ride_view.setAdapter(ride_adapter);
-
-        System.out.println("Date: " + rides.get(rides.size()-1).getDate());
-    }
-    @Override
-    public void addingRide(ride newRide){
-        System.out.println("Adding city bro");
-        ride_adapter.add(newRide);
-
-    }
-    @Override
-    public void editingRide(ride newRide){
+        total_distance = 0;
+        if (rides_counter!=0){
+            for(int i=0; i< rides_counter; i++){
+                total_distance += Double.valueOf(rides.get(i).getDistance());
+            }
+        }
+        else{
+            total_distance = 0;
+        }
+        distance.setText(String.valueOf(total_distance));
 
     }
 
     public void onClick(View view) {
-        if (view.getId() == R.id.add_button){
+        if (view.getId() == R.id.add_button) {
 
             Toast.makeText(this, "Cool!", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(MainActivity.this, ride_adding_activity.class);
@@ -96,32 +92,17 @@ public class MainActivity extends AppCompatActivity implements ride_adding_activ
             startActivity(intent);
             ride_empty = false;
 
-        }
-        else if (view.getId() == R.id.delete_button){
-            System.out.println("Testing deleteaaaa");
-
+        } else if (view.getId() == R.id.delete_button) {
             Toast.makeText(this, "DELETING", Toast.LENGTH_SHORT).show();
-            if ((!ride_empty) && (index !=-1)){
+            if ((!ride_empty) && (index != -1)) {
+                total_distance -= rides.get(index).getDistance();
+
                 rides.remove(index);
+                rides_counter--;
+                distance.setText(String.valueOf(total_distance));
                 ride_adapter.notifyDataSetChanged();
-                System.out.println("Testing delete");
             }
             index = -1;
         }
-
-/*
-        ride a_ride = new ride("Sam");
-        //a_ride.setDate(message);
-        ride b_ride = new ride("Sam");
-        a_ride.setDate(message);
-        rides.add(a_ride);
-        rides.add(b_ride);
-*/
-        // it's not showing as they are all objects
-
-
     }
-
-
-
 }

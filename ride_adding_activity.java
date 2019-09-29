@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -22,16 +23,9 @@ public class ride_adding_activity extends AppCompatActivity implements View.OnCl
 
     public boolean button_clicked = false;
     boolean edited = false;
-    public String date_str,time_str,name_str,distance, speed, cadence, comments;
-    EditText date_input, time_input,name_input,speed_input, distance_input;
-    private OnRideAddingInteractionListener listener;
-
+    EditText date_input, time_input,speed_input, distance_input,cadence_input,comments_input;
+    public static int ride_counter;
     Button button;
-    public interface OnRideAddingInteractionListener{
-        void addingRide(ride newRide);
-        void editingRide(ride newRide);
-    }
-
 
     public boolean isButton_clicked() {
         return button_clicked;
@@ -50,20 +44,24 @@ public class ride_adding_activity extends AppCompatActivity implements View.OnCl
 
 
         // Capture the layout's TextView and set the string as its text
-        TextView main_view = findViewById(R.id.textView1);
         TextView time_inst = findViewById(R.id.time_inst);
-        // testing the message and hard code out
-        time_inst.setText("Now here");
-        main_view.setText(message);
 
         //sending activity to main after button is pushed every view by ID is here
         button = (Button) findViewById(R.id.button);
         date_input = (EditText) findViewById(R.id.date);
         time_input = findViewById(R.id.time);
+        distance_input = findViewById(R.id.distance_text);
+        speed_input = findViewById(R.id.average_speed);
+        cadence_input = findViewById(R.id.cadence);
+        comments_input = findViewById(R.id.comments);
         button.setOnClickListener(this);
 
         if (index != -1 ){
             date_input.setText(rides.get(index).getDate());
+            distance_input.setText(String.valueOf(rides.get(index).getDistance()));
+            time_input.setText(rides.get(index).getTime());
+            speed_input.setText(String.valueOf(rides.get(index).getSpeed()));
+            cadence_input.setText(rides.get(index).getTime());
             edited = true;
         }
     }
@@ -76,17 +74,24 @@ public class ride_adding_activity extends AppCompatActivity implements View.OnCl
             Intent intent1 = new Intent(ride_adding_activity.this, MainActivity.class);
             String time = time_input.getText().toString();
             String date = date_input.getText().toString();
-            if (edited){
-                rides.remove(index);
+            String distance = distance_input.getText().toString();
+            if (distance.matches("")){
+                System.out.println("test in ride");
+                Toast.makeText(getApplicationContext(),"NO INPUT", Toast.LENGTH_SHORT).show();
+
             }
-            index = -1;
-            MainActivity.rides.add(new ride(date, time,1.1));
-            System.out.println("Before  <ain Date: " + rides.get(rides.size()-1).getDate());
-            System.out.println("test");
-            finish();
-//            startActivity(intent1);
+            else{
+                if (edited){
+                    System.out.println("Subtracting : "+rides.get(index).getDistance());
+                    rides.remove(index);
+                    MainActivity.rides_counter--;
+                }
+
+                MainActivity.rides_counter++;
+                index = -1;
+                MainActivity.rides.add(new ride(date, time,Double.valueOf(distance)));
+                finish();
+            }
         }
-
-
     }
 }
