@@ -8,7 +8,7 @@ public class ride {
     String comments;
 
 
-
+    ride(){};
     ride(String date, String time, double distance){
         this.date = date;
         this.time = time;

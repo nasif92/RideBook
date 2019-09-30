@@ -42,6 +42,9 @@ public class ride_adding_activity extends AppCompatActivity implements View.OnCl
     TextView date_input, time_input;
     public static int ride_counter;
     boolean allGood;
+    boolean cadence_bool = true;
+    boolean speed_bool = true;
+    boolean comment_bool = true;
     Button button;
     Double distance;
     String speed,cadence,comments,some_day, some_time;
@@ -64,7 +67,6 @@ public class ride_adding_activity extends AppCompatActivity implements View.OnCl
         some_day = dateFormat.format(test_date);
         some_time = timeFormat.format(test_date);
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_ride_adding_activity);
         // Get the Intent that started this activity and extract the string
         final Intent intent = getIntent();
@@ -94,12 +96,9 @@ public class ride_adding_activity extends AppCompatActivity implements View.OnCl
             distance_input.setText(String.valueOf(rides.get(index).getDistance()));
             if (!isNull(rides.get(index).getSpeed())){
                 speed_input.setText(String.valueOf(rides.get(index).getSpeed()));
-
             }
             if (rides.get(index).getCadence() != 0){
-
                 cadence_input.setText(String.valueOf(rides.get(index).getCadence()));
-
             }
             if(!isNull(rides.get(index).getComments())){
                 comments_input.setText(rides.get(index).getComments());
@@ -110,7 +109,6 @@ public class ride_adding_activity extends AppCompatActivity implements View.OnCl
 
         // working on the time picker
         time_input.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View view) {
                 DialogFragment timePicker = new time_picker();
@@ -154,6 +152,7 @@ public class ride_adding_activity extends AppCompatActivity implements View.OnCl
     }
     @Override
     public void onClick(View v) {
+        ride test_ride;
         if (v.getId() == R.id.button){
             button_clicked = true;
             Intent intent1 = new Intent(ride_adding_activity.this, MainActivity.class);
@@ -169,52 +168,96 @@ public class ride_adding_activity extends AppCompatActivity implements View.OnCl
 
                 // for checking distance
                 try{
-                    distance = Double.valueOf(distance_input.getText().toString());
-                    allGood = true;
+                    if(Double.valueOf(distance_input.getText().toString()) < 0.0){
+                        Toast.makeText(getApplicationContext(),"DISTANCE FORMAT WRONG", Toast.LENGTH_SHORT).show();
+                    }
+                    else{
+                        distance = Double.valueOf(distance_input.getText().toString());
+                        allGood = true;
+                    }
 
-                }catch (NumberFormatException ex) {
-                    Toast.makeText(getApplicationContext(),"DISTANCE FORMAT WRONG", Toast.LENGTH_SHORT).show();
+                }catch (Exception ex) {
+                    Toast.makeText(getApplicationContext(),"MISSING MANDATORY ARGUMENTS", Toast.LENGTH_SHORT).show();
                     allGood = false;
                 }
                 try{
-
                     // creating the object with mandatory arguments
                     ride new_ride = new ride(date, time,distance);
 
                     // checking if optional arguments are given
                     if(!speed_input.getText().toString().isEmpty() ){
-                        System.out.println("Speed entered");
                         speed = speed_input.getText().toString();
+                        if (Double.valueOf(speed) < 0.0){
+                            speed_bool = false;
+                            allGood = false;
+                        }
+                        else{
+                            speed_bool = true;
+                            allGood = true;
+                        }
                         new_ride.setSpeed(Double.valueOf(speed));
                     }
                     if(!cadence_input.getText().toString().isEmpty()){
-                        
                         cadence = cadence_input.getText().toString();
+                        if (Integer.valueOf(cadence) < 0){
+                            cadence_bool = false;
+                            allGood = false;
+                        }
+                        else {
+                            cadence_bool = true;
+                            allGood = true;
+                        }
                         new_ride.setCadence(Integer.valueOf(cadence));
                     }
                     if(!comments_input.getText().toString().isEmpty()){
-                        System.out.println("Comments entered");
-
                         comments = comments_input.getText().toString();
+                        if (comments.length() > 20){
+                            comment_bool = false;
+                            allGood = false;
+
+                        }
+                        else {
+                            comment_bool = true;
+                            allGood = true;
+
+                        }
                         new_ride.setComments(comments);
                     }
-                    allGood = true;
-                    MainActivity.rides.add(new_ride);
 
+                    if((edited) && (allGood)){
+                        rides.remove(index);
+                        MainActivity.rides.add(index,new_ride);
+                    }
+                    else if (allGood){
+                        rides.add(new_ride);
+                    }
 
-                }catch (Exception e){
-                    Toast.makeText(getApplicationContext(),"MISSING MANDATORY FIELDS \n DISTANCE", Toast.LENGTH_SHORT).show();
+                }catch (Exception e) {
+                    Toast.makeText(getApplicationContext(), "ARGUMENT FORMAT WRONG", Toast.LENGTH_SHORT).show();
                     allGood = false;
                 }
-                if (edited){
-                    rides.remove(index);
-                    MainActivity.rides_counter--;
-                }
+                if (comment_bool == false){
+                    Toast.makeText(getApplicationContext(), "COMMENTS TOO LONG", Toast.LENGTH_SHORT).show();
+                    allGood = false;
 
+                }
+                if( speed_bool == false){
+                    Toast.makeText(getApplicationContext(), "SPEED FORMAT WRONG", Toast.LENGTH_SHORT).show();
+                    allGood = false;
+                }
+                if( cadence_bool == false){
+                    Toast.makeText(getApplicationContext(), "CADENCE FORMAT WRONG", Toast.LENGTH_SHORT).show();
+                    allGood = false;
+
+                }
                 if (allGood){
-                    MainActivity.rides_counter++;
                     index = -1;
                     finish();
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), "ARGUMENT FORMAT WRONG", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "MAKE SURE THERE ARE NO NON NEGATIVE INTEGERS", Toast.LENGTH_SHORT).show();
+
                 }
             }
         }

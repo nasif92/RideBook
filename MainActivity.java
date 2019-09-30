@@ -24,7 +24,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static ArrayAdapter<ride> ride_adapter;
     Button add_button, delete_button;
     public static double total_distance;
-    public static int rides_counter;
     public static int index = -1;
     int edited_index;
     activity_tracker activity_tracker = new activity_tracker();
@@ -71,14 +70,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ride_adapter = new ride_array_adapter(rides,this);
         ride_view.setAdapter(ride_adapter);
         total_distance = 0;
-        if (rides_counter!=0){
-            for(int i=0; i< rides_counter; i++){
-                total_distance += rides.get(i).getDistance();
-            }
+        int counter = 0;
+        while (counter != rides.size()){
+                total_distance += rides.get(counter).getDistance();
+            counter++;
         }
-        else{
+        if (counter == 0){
             total_distance = 0;
+
         }
+
         distance.setText(String.valueOf(total_distance));
 
     }
@@ -96,10 +97,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Toast.makeText(this, "DELETING", Toast.LENGTH_SHORT).show();
             if ((!ride_empty) && (index != -1)) {
                 total_distance -= rides.get(index).getDistance();
-
                 rides.remove(index);
-                rides_counter--;
-
                 distance.setText(String.valueOf(Math.round(total_distance*100)/100.0));
                 ride_adapter.notifyDataSetChanged();
             }
