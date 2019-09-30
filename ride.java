@@ -7,10 +7,7 @@ public class ride {
     int cadence;
     String comments;
 
-    ride(String time) {
-        this("", time,0.0,0.0,0,"");
 
-    }
 
     ride(String date, String time, double distance){
         this.date = date;

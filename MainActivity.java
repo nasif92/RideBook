@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         total_distance = 0;
         if (rides_counter!=0){
             for(int i=0; i< rides_counter; i++){
-                total_distance += Double.valueOf(rides.get(i).getDistance());
+                total_distance += rides.get(i).getDistance();
             }
         }
         else{
@@ -99,7 +99,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 rides.remove(index);
                 rides_counter--;
-                distance.setText(String.valueOf(total_distance));
+
+                distance.setText(String.valueOf(Math.round(total_distance*100)/100.0));
                 ride_adapter.notifyDataSetChanged();
             }
             index = -1;
